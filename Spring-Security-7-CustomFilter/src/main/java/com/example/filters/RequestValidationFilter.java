@@ -1,0 +1,35 @@
+package com.example.filters;
+
+import java.io.IOException;
+
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+public class RequestValidationFilter implements Filter{
+
+	@Override
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+			throws IOException, ServletException {
+		
+		var httpRequest = (HttpServletRequest) request;
+		var httpResponse = (HttpServletResponse) response;
+		
+		String requestId = httpRequest.getHeader("Request-Id");
+		
+		if(requestId == null || requestId.isBlank()) {
+			// If the header is missing, the HTTP status changes to 400 Bad Request, 
+			// and the request is not forwarded to the next filter in the chain.
+			httpResponse.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			return;
+		}
+		// If the header exists, the request is forwarded to the next filter in the chain.
+		chain.doFilter(request, response);
+		
+	}
+
+}
